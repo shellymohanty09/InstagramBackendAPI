@@ -70,7 +70,39 @@ func GetUserEndpoint(response http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(response).Encode(user)
 }
 
+func CreatePostEndpoint(response http.ResponseWriter, request *http.Request) {
+	response.Header().Set("content-type", "application/json")
+	var post Posts
+	_ = json.NewDecoder(request.Body).Decode(&post)
+	collection := client.Database("InstagramBackendAPI").Collection("post")
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	result, _ := collection.InsertOne(ctx, post)
+	json.NewEncoder(response).Encode(result)
+}
+
+func GetPostEndpoint(response http.ResponseWriter, request *http.Request) {
+	response.Header().Set("content-type", "application/json")
+	params := mux.Vars(request)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	var post Posts
+	collection := client.Database("InstagramBackendAPI").Collection("post")
+	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	err := collection.FindOne(ctx, User{ID: id}).Decode(&post)
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+		return
+	}
+	json.NewEncoder(response).Encode(post)
+}
+
 func main() {
 	fmt.Println("Hello World")
 	ConnectMongo()
+	router := mux.NewRouter()
+	router.HandleFunc("/user", CreateUserEndpoint).Methods("POST")
+	router.HandleFunc("/users", GetUserEndpoint).Methods("GET")
+	router.HandleFunc("/post", CreatePostEndpoint).Methods("POST")
+	router.HandleFunc("/posts", GetUserEndpoint).Methods("GET")
+	http.ListenAndServe(":3000", router)
 }
