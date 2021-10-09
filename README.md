@@ -25,4 +25,4 @@ localhost:12345/post/?ID=<ID_NAME>
 localhost:12345/post/user/?ID=<ID_NAME>
 ```
 
-> Made with 💙 by [Shelly Mohanty](https://github.com/shellymohnaty09)
+> Made with 💙 by [Shelly Mohanty](https://github.com/shellymohanty09)
