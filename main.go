@@ -54,13 +54,29 @@ func CreateUserEndpoint(response http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(response).Encode(result)
 }
 
-func GetUserEndpoint(response http.ResponseWriter, request *http.Request) {
+func GetUsersEndpoint(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("content-type", "application/json")
 	params := mux.Vars(request)
 	id, _ := primitive.ObjectIDFromHex(params["id"])
 	var user User
 	collection := client.Database("InstagramBackendAPI").Collection("user")
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	err := collection.FindOne(ctx, User{ID: id}).Decode(&user)
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+		return
+	}
+	json.NewEncoder(response).Encode(user)
+}
+
+func GetUserEndpoint(response http.ResponseWriter, request *http.Request) {
+	response.Header().Set("content-type", "application/json")
+	params := mux.Vars(request)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	var user User
+	collection := client.Database("InstagramBackendAPI").Collection("user")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err := collection.FindOne(ctx, User{ID: id}).Decode(&user)
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
@@ -80,7 +96,7 @@ func CreatePostEndpoint(response http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(response).Encode(result)
 }
 
-func GetPostEndpoint(response http.ResponseWriter, request *http.Request) {
+func GetPostsEndpoint(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("content-type", "application/json")
 	params := mux.Vars(request)
 	id, _ := primitive.ObjectIDFromHex(params["id"])
@@ -96,13 +112,31 @@ func GetPostEndpoint(response http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(response).Encode(post)
 }
 
+func GetPostEndpoint(response http.ResponseWriter, request *http.Request) {
+	response.Header().Set("content-type", "application/json")
+	params := mux.Vars(request)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	var post Posts
+	collection := client.Database("InstagramBackendAPI").Collection("post")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err := collection.FindOne(ctx, User{ID: id}).Decode(&post)
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+		return
+	}
+	json.NewEncoder(response).Encode(post)
+}
+
 func main() {
 	fmt.Println("Hello World")
 	ConnectMongo()
 	router := mux.NewRouter()
 	router.HandleFunc("/user", CreateUserEndpoint).Methods("POST")
-	router.HandleFunc("/users", GetUserEndpoint).Methods("GET")
+	router.HandleFunc("/users", GetUsersEndpoint).Methods("GET")
+	router.HandleFunc("/user/{id}", GetUserEndpoint).Methods("GET")
 	router.HandleFunc("/post", CreatePostEndpoint).Methods("POST")
-	router.HandleFunc("/posts", GetUserEndpoint).Methods("GET")
-	http.ListenAndServe(":3000", router)
+	router.HandleFunc("/posts", GetPostsEndpoint).Methods("GET")
+	router.HandleFunc("/post/{id}", GetPostEndpoint).Methods("GET")
+	http.ListenAndServe(":27017", router)
 }
