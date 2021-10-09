@@ -20,7 +20,7 @@ localhost:12345/post/
 ```ruby
 localhost:12345/post/?ID=<ID_NAME>
 ```
-- [] Retriving posts of a user<br>
+- [X] Retriving posts of a user<br>
 ```ruby
 localhost:12345/post/user/?ID=<ID_NAME>
 ```
