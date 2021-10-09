@@ -12,6 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -49,6 +51,12 @@ func CreateUserEndpoint(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("content-type", "application/json")
 	var user User
 	_ = json.NewDecoder(request.Body).Decode(&user)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
+	if err != nil || hashedPassword != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+		return
+	}
 	collection := client.Database("InstagramBackendAPI").Collection("user")
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 	result, _ := collection.InsertOne(ctx, user)
