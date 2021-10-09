@@ -34,4 +34,4 @@ localhost:12345/post/user/?ID=<ID_NAME>
 ```
 <img src="https://github.com/shellymohanty09/InstagramBackendAPI/blob/main/Output1.PNG">
 
-> Made with 💙 by [Shelly Mohanty](https://github.com/shellymohnaty09)
+> Made with 💙 by [Shelly Mohanty](https://github.com/shellymohanty09)
