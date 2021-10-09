@@ -133,6 +133,6 @@ func main() {
 	router.HandleFunc("/user/{id}", GetUserEndpoint).Methods("GET")
 	router.HandleFunc("/post", CreatePostEndpoint).Methods("POST")
 	router.HandleFunc("/post/{id}", GetPostEndpoint).Methods("GET")
-	router.HandleFunc("/posts/users/{id}", GetUserPostEndpoint).Methods("GET")
+	router.HandleFunc("/post/user/{id}", GetUserPostEndpoint).Methods("GET")
 	http.ListenAndServe(":12345", router)
 }
